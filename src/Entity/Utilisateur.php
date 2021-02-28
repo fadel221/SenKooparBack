@@ -39,7 +39,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *             "normalization_context" ={"groups" ={"user:read"}},
  *              "denormalization_context" ={"groups" ={"user:write"}},
  *              "path"="/user",
- *              
+ *          },
+ * 
+ *          "montant_transaction"={
+ *             "normalization_context" ={"groups" ={"user:read"}},
+ *              "path"="/user/frais/{montant}",
+ *              "method"="GET"
  *          }
  *          
  *       },
@@ -49,6 +54,16 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *              "path"="/user/{id}",
  *              "defaults"={"id"=null}
  *          },
+ * 
+ *          "recharger_compte"=
+ *              {
+ *                  "method"="PUT",
+ *                  "path"="/caissier/{idcaissier}/compte/{idcompte}"
+ *              }
+ * 
+ *              
+ * 
+ *              
  *          
  *          
  *    }
@@ -63,12 +78,16 @@ class Utilisateur implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"transaction:write"})
+     * @Groups({"compte:write","compte:read"})
+     * @Groups({"agence_user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"agence_user:read"})
      */
     private $email;
 
@@ -85,12 +104,16 @@ class Utilisateur implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"agence_user:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"agence_user:read"})
      */
     private $nom;
 
@@ -99,11 +122,15 @@ class Utilisateur implements UserInterface
      * @Assert\NotBlank()
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^(76|77|78|75)[0-9]*$/", message="number_only") 
-     */
+     * @Groups({"transaction:write","transaction:read"}) 
+     * @Groups({"agence_user:read"})
+    */
     private $telephone;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"agence_user:read"})
      */
     private $statut;
 
@@ -111,6 +138,7 @@ class Utilisateur implements UserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="utilisateurs")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $agence;
 

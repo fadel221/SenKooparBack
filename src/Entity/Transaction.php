@@ -2,14 +2,21 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Client;
+use App\Entity\Compte;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\TransactionRepository;
-use ApiPlatform\Core\Annotation\ApiResource;
 use PhpParser\Node\Expr\Cast\String_;
+use App\Repository\TransactionRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use ApiPlatform\Core\Bridge\Elasticsearch\DataProvider\Filter\TermFilter;
 
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
@@ -42,13 +49,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          "update_transaction"={
  *                  "denormalization_context" ={"groups" ={"transaction:write"}},      
  *                  "path"="/transactions/{id}",
- *                  "method"="PUT"
+ *                  "method"="PUT",
+ *                  "normalization_context" ={"groups" ={"transaction:read"}},
  *              }
- * 
- *          
- *          
  *    }
  * )
+ * 
+ *@ApiFilter(SearchFilter::class, properties={"codeTransfert":"exact", "montant":"exact","userDepot.id":"exact","userRetrait.id":"exact"})
  */
 class Transaction
 {
@@ -56,100 +63,112 @@ class Transaction
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"compte:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:write","transaction:read"})
      * @Assert\NotBlank()
+     * @Groups({"compte:read"})
      */
     private $montant;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $dateRetrait;
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
-     * 
-     * 
+     * @Groups({"compte:read"})
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $codeTransfert;
 
     /**
      * @ORM\Column(type="integer",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $frais;
 
     /**
      * @ORM\Column(type="integer",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $fraisDepot;
 
     /**
      * @ORM\Column(type="integer",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $fraisRetrait;
 
     /**
      * @ORM\Column(type="integer",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $fraisEtat;
 
     /**
      * @ORM\Column(type="integer",nullable=true)
-     * 
+     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"compte:read"})
      */
     private $fraisSysteme;
 
     /**
      * @ORM\ManyToOne(targetEntity=Utilisateur::class, inversedBy="transaction",cascade={"persist"}))
      * @ORM\JoinColumn(nullable=true)
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $userRetrait;
 
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="transaction",cascade={"persist"}))
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $clientDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=Compte::class, inversedBy="transaction")
      * @ORM\JoinColumn(nullable=true)
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $compteDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=Utilisateur::class, inversedBy="transactions")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $userDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=Compte::class, inversedBy="transactions")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $compteRetrait;
 
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="transactions",cascade={"persist"}))
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"transaction:write","transaction:read"})
      */
     private $clientRetrait;
 

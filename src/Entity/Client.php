@@ -11,6 +11,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ApiResource(
@@ -39,6 +41,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      fields={"numCIN"},
  *      message="Ce libellé existe déjà"
  * )
+ * @ApiFilter(SearchFilter::class, properties={"numCIN":"exact"})
  */
 class Client
 {
@@ -46,35 +49,38 @@ class Client
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:write","client:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"client:write"})
+     * @Groups({"transaction:write","transaction:read","client:write","client:read"})
      */
     private $nomComplet;
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
      * @Groups({"client:write"})
+     * @Groups({"transaction:write","transaction:read","client:write","client:read"})
      */
     private $numCIN;
 
     /**
-     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="client")
+     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="clientDepot")
+     * 
      */
     private $transaction;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"client:write"})
+     * @Groups({"transaction:write","transaction:read","client:write","client:read"})
      */
     private $telephone;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="clientRetrait")
+     * 
      */
     private $transactions;
 

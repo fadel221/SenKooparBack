@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CompteRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,15 +12,41 @@ use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ * collectionOperations={
+ *  "post"={
+ *              "denormalization_context" ={"groups" ={"compte:write"}},
+ *              "normalization_context" ={"groups" ={"compte:read"}},
+ *              "path"="/admin/comptes"
+ *          },
+ *  "get"={
+ *              "normalization_context" ={"groups" ={"compte:read"}},
+ *              "path"="/admin/comptes"
+ *          }
+ * 
+ * },
+ * 
+ * itemOperations={
+ *   "get"={
+ *              "normalization_context" ={"groups" ={"compte:read"}},
+ *              "path"="/admin/comptes/{id}/transactions"
+ *          },
+ *  
+ * }
+ * 
+ * )
  * @ORM\Entity(repositoryClass=CompteRepository::class)
  * @UniqueEntity(
  *      fields={"numero"},
  *      message="Ce libellé existe déjà"
  * )
+ * @ApiFilter(DateFilter::class, properties={"transactions.dateDepot","transactions.dateRetrait",})
+ * @ApiFilter(SearchFilter::class, properties={"utilisateurs.id"="exact"})
  */
 class Compte
 {
@@ -27,7 +54,7 @@ class Compte
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"transaction:write"})
+     * @Groups({"transaction:read","client:write","compte:read","agence:write","agence:read"})
      */
     private $id;
 
@@ -36,17 +63,20 @@ class Compte
      * @Assert\NotBlank()
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^[0-9]*$/", message="number_only") 
+     * @Groups({"transaction:read","client:write","compte:write","compte:read","agence:read"})
      */
     private $numero;
 
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank()
+     * @Groups({"transaction:read","client:write","compte:write","compte:read","agence:read"})
      */
     private $solde;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"transaction:read","client:write","compte:read","agence:read"})
      */
     private $dateCreation;
 
@@ -54,27 +84,32 @@ class Compte
 
     /**
      * @ORM\ManyToMany(targetEntity=Utilisateur::class, mappedBy="compte")
+     * @Groups({"compte:write","compte:read"})
      */
     private $utilisateurs;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="compteDepot")
+     *@Groups({"compte:read"})
      */
     private $transaction;
 
     /**
      * @ORM\OneToOne(targetEntity=Agence::class, inversedBy="compte", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"compte:write","compte:read"})
      */
     private $agence;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"transaction:read","client:write","compte:read"})
      */
     private $statut;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="compteRetrait")
+     * @Groups({"compte:read"})
      */
     private $transactions;
 
@@ -128,17 +163,6 @@ class Compte
         return $this;
     }
 
-    public function getState(): ?bool
-    {
-        return $this->state;
-    }
-
-    public function setState(bool $state): self
-    {
-        $this->state = $state;
-
-        return $this;
-    }
 
     /**
      * @return Collection|Utilisateur[]
