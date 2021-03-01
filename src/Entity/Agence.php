@@ -74,7 +74,7 @@ class Agence
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"compte:write","compte:read","agence_user:read","agence:read","agence:write"})
+     * @Groups({"user:read","user:write","compte:write","compte:read","agence_user:read","agence:read","agence:write"})
      */
     private $id;
 
@@ -83,27 +83,27 @@ class Agence
      * @Assert\NotBlank()
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^(33|76|77|78|75)[0-9]*$/", message="Précédé tjrs de 33|76|77|78|75") 
-     * @Groups({"compte:read","agence_user:read","agence:read","agence:write"})
+     * @Groups({"user:read","compte:read","agence_user:read","agence:read","agence:write"})
      */
     private $telephone;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"compte:read","agence_user:read","agence:read","agence:write"})
+     * @Groups({"user:read","compte:read","agence_user:read","agence:read","agence:write"})
      */
     private $adresse;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"compte:read","agence_user:read","agence:read","agence:write"})
+     * @Groups({"user:read","compte:read","agence_user:read","agence:read","agence:write"})
      * @Assert\NotBlank()
      */
     private $lattitude;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"compte:read","agence_user:read","agence:read","agence:write"})
+     * @Groups({"user:read","compte:read","agence_user:read","agence:read","agence:write"})
      * @Assert\NotBlank()
      */
     private $longitude;

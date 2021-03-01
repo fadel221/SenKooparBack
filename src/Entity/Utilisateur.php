@@ -27,23 +27,26 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      message="Ce libellé existe déjà"
  * )
  * @ApiResource(
+ * attributes={
+ *          "pagination_items_per_page"=10,
+ *          "normalization_context"={"groups"={"user_read",},"enable_max_depth"=true}
+ *      },
  *  
  *    collectionOperations={
  * 
  *         "post"={
  *              "normalization_context" ={"groups" ={"user:read"}},
  *              "denormalization_context" ={"groups" ={"user:write"}},
- *              "path"="/user"
+ *              "path"="/admin/users"
  *          },
  *         "get"={
- *             "normalization_context" ={"groups" ={"user:read"}},
- *              "denormalization_context" ={"groups" ={"user:write"}},
- *              "path"="/user",
+ *             "normalization_context" ={"groups" ={"user:read"},"enable_max_depth"=true},
+ *              "path"="/admin/users",
  *          },
  * 
  *          "montant_transaction"={
- *             "normalization_context" ={"groups" ={"user:read"}},
- *              "path"="/user/frais/{montant}",
+ *             "normalization_context" ={"groups" ={"user:read"},"enable_max_depth"=true},
+ *              "path"="/user/frais/montant",
  *              "method"="GET"
  *          }
  *          
@@ -51,7 +54,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      itemOperations={
  *          "get"={
  *              "normalization_context" ={"groups" ={"user:read"}},      
- *              "path"="/user/{id}",
+ *              "path"="/admin/users/{id}",
  *              "defaults"={"id"=null}
  *          },
  * 
@@ -59,12 +62,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *              {
  *                  "method"="PUT",
  *                  "path"="/caissier/{idcaissier}/compte/{idcompte}"
+ *              },
+ *      
+ *          "delete"=
+ *              {
+ *                 "path"="/admin/users/{id}" 
  *              }
- * 
- *              
- * 
- *              
- *          
  *          
  *    }
  * 
@@ -86,8 +89,8 @@ class Utilisateur implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
-     * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"agence_user:read"})
+     * @Groups({"user:write","transaction:write","transaction:read"})
+     * @Groups({"agence_user:read","user:read"})
      */
     private $email;
 
@@ -98,6 +101,7 @@ class Utilisateur implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
+     * @Groups({"user:write"})
      */
     private $password;
 
@@ -105,7 +109,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"agence_user:read"})
+     * @Groups({"user:write","agence_user:read","user:read"})
      */
     private $prenom;
 
@@ -113,7 +117,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"agence_user:read"})
+     * @Groups({"user:write","agence_user:read","user:read"})
      */
     private $nom;
 
@@ -123,14 +127,14 @@ class Utilisateur implements UserInterface
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^(76|77|78|75)[0-9]*$/", message="number_only") 
      * @Groups({"transaction:write","transaction:read"}) 
-     * @Groups({"agence_user:read"})
+     * @Groups({"user:write","agence_user:read","user:read"})
     */
     private $telephone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"agence_user:read"})
+     * @Groups({"agence_user:read","user:read"})
      */
     private $statut;
 
@@ -138,7 +142,7 @@ class Utilisateur implements UserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="utilisateurs")
      * @ORM\JoinColumn(nullable=true)
-     * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"user:write","transaction:write","transaction:read","user:read"})
      */
     private $agence;
 
@@ -156,6 +160,11 @@ class Utilisateur implements UserInterface
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="userDepot")
      */
     private $transactions;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Role::class, inversedBy="utilisateurs")
+     */
+    private $role;
 
     public function __construct()
     {
@@ -371,6 +380,18 @@ class Utilisateur implements UserInterface
     public function getTransactions(): Collection
     {
         return $this->transactions;
+    }
+
+    public function getRole(): ?Role
+    {
+        return $this->role;
+    }
+
+    public function setRole(?Role $role): self
+    {
+        $this->role = $role;
+
+        return $this;
     }
      
 }

@@ -45,7 +45,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      fields={"numero"},
  *      message="Ce libellé existe déjà"
  * )
- * @ApiFilter(DateFilter::class, properties={"transactions.dateDepot","transactions.dateRetrait",})
+ * @ApiFilter(DateFilter::class, properties={"transactions.dateDepot","transactions.dateRetrait","transaction.dateDepot","transaction.dateRetrait","dateCreation"})
  * @ApiFilter(SearchFilter::class, properties={"utilisateurs.id"="exact"})
  */
 class Compte
@@ -59,11 +59,10 @@ class Compte
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=255,nullable=true)
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^[0-9]*$/", message="number_only") 
-     * @Groups({"transaction:read","client:write","compte:write","compte:read","agence:read"})
+     * @Groups({"transaction:read","client:write","compte:read","agence:read"})
      */
     private $numero;
 

@@ -18,7 +18,7 @@ class UtilisateurController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/user/frais/{montant}",
+     *     path="/api/user/frais/montant",
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\UtilisateurController::FraisForMontant",
@@ -29,7 +29,7 @@ class UtilisateurController extends AbstractController
      * )
     */
 
-    public function FraisForMontant($montant,Request $request,SerializerInterface $serializer,ValidatorInterface $validator,EntityManagerInterface $manager,TransactionServices $service)
+    public function FraisForMontant(Request $request,SerializerInterface $serializer,ValidatorInterface $validator,EntityManagerInterface $manager,TransactionServices $service)
     {
         $Montant_tab = $serializer->decode($request->getContent(),"json");
         $frais=$service->calculeFraisTotal($Montant_tab['montant']);
