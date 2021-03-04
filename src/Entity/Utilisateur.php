@@ -7,6 +7,7 @@ use App\Entity\Compte;
 use App\Entity\Transaction;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UtilisateurRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -29,7 +31,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ApiResource(
  * attributes={
  *          "pagination_items_per_page"=10,
- *          "normalization_context"={"groups"={"user_read",},"enable_max_depth"=true}
+ *          "normalization_context"={"groups"={"user_read","user_transaction:read"},"enable_max_depth"=true}
  *      },
  *  
  *    collectionOperations={
@@ -43,6 +45,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *             "normalization_context" ={"groups" ={"user:read"},"enable_max_depth"=true},
  *              "path"="/admin/users",
  *          },
+ * 
+ *          
+ * 
+ *          
  * 
  *          "montant_transaction"={
  *             "normalization_context" ={"groups" ={"user:read"},"enable_max_depth"=true},
@@ -67,12 +73,17 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          "delete"=
  *              {
  *                 "path"="/admin/users/{id}" 
- *              }
+ *              },
+ * 
+ *              "get"={
+ *             "normalization_context" ={"groups" ={"user_transaction:read"},"enable_max_depth"=true},
+ *              "path"="/user/{id}/transactions",
+ *          },
  *          
  *    }
  * 
  * )
- * 
+ * @ApiFilter(DateFilter::class, properties={"transactions.dateRetrait","transaction.dateRetrait"})
  */
 class Utilisateur implements UserInterface
 {
@@ -82,7 +93,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="integer")
      * @Groups({"transaction:write"})
      * @Groups({"compte:write","compte:read"})
-     * @Groups({"agence_user:read"})
+     * @Groups({"agence_user:read","user_transaction:read"})
      */
     private $id;
 
@@ -90,7 +101,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
      * @Groups({"user:write","transaction:write","transaction:read"})
-     * @Groups({"agence_user:read","user:read"})
+     * @Groups({"agence_user:read","user:read","user_transaction:read"})
      */
     private $email;
 
@@ -109,7 +120,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"user:write","agence_user:read","user:read"})
+     * @Groups({"user:write","agence_user:read","user:read","user_transaction:read"})
      */
     private $prenom;
 
@@ -117,7 +128,7 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"user:write","agence_user:read","user:read"})
+     * @Groups({"user:write","agence_user:read","user:read","user_transaction:read"})
      */
     private $nom;
 
@@ -127,14 +138,14 @@ class Utilisateur implements UserInterface
      * @Assert\Length(min = 9, max =9 , minMessage = "Numéro Incomplet", maxMessage = "Numéro Volumineux")
      * @Assert\Regex(pattern="/^(76|77|78|75)[0-9]*$/", message="number_only") 
      * @Groups({"transaction:write","transaction:read"}) 
-     * @Groups({"user:write","agence_user:read","user:read"})
+     * @Groups({"user:write","agence_user:read","user:read","user_transaction:read"})
     */
     private $telephone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"transaction:write","transaction:read"})
-     * @Groups({"agence_user:read","user:read"})
+     * @Groups({"agence_user:read","user:read","user_transaction:read"})
      */
     private $statut;
 
@@ -153,11 +164,13 @@ class Utilisateur implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="userRetrait")
+     * @Groups({"user_transaction:read"})
      */
     private $transaction;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="userDepot")
+     * @Groups({"user_transaction:read"})
      */
     private $transactions;
 

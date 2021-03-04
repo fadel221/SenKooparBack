@@ -64,6 +64,7 @@ class Transaction
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $id;
 
@@ -72,6 +73,7 @@ class Transaction
      * @Groups({"transaction:write","transaction:read"})
      * @Assert\NotBlank()
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $montant;
 
@@ -79,6 +81,7 @@ class Transaction
      * @ORM\Column(type="date",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $dateDepot;
 
@@ -86,6 +89,7 @@ class Transaction
      * @ORM\Column(type="date",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $dateRetrait;
 
@@ -93,6 +97,7 @@ class Transaction
      * @ORM\Column(type="string", length=255,nullable=true)
      * @Groups({"compte:read"})
      * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $codeTransfert;
 
@@ -100,6 +105,7 @@ class Transaction
      * @ORM\Column(type="integer",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $frais;
 
@@ -107,6 +113,7 @@ class Transaction
      * @ORM\Column(type="integer",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $fraisDepot;
 
@@ -114,6 +121,7 @@ class Transaction
      * @ORM\Column(type="integer",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $fraisRetrait;
 
@@ -121,6 +129,7 @@ class Transaction
      * @ORM\Column(type="integer",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $fraisEtat;
 
@@ -128,6 +137,7 @@ class Transaction
      * @ORM\Column(type="integer",nullable=true)
      * @Groups({"transaction:write","transaction:read"})
      * @Groups({"compte:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $fraisSysteme;
 
@@ -162,6 +172,7 @@ class Transaction
      * @ORM\ManyToOne(targetEntity=Compte::class, inversedBy="transactions")
      * @ORM\JoinColumn(nullable=true)
      * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $compteRetrait;
 
@@ -169,6 +180,7 @@ class Transaction
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="transactions",cascade={"persist"}))
      * @ORM\JoinColumn(nullable=true)
      * @Groups({"transaction:write","transaction:read"})
+     * @Groups({"user_transaction:read"})
      */
     private $clientRetrait;
 

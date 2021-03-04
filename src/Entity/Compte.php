@@ -67,7 +67,7 @@ class Compte
     private $numero;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer",nullable=true)
      * @Assert\NotBlank()
      * @Groups({"transaction:read","client:write","compte:write","compte:read","agence:read"})
      */
